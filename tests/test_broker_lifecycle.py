@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from broker.broker import Broker
+from broker.real_broker import Broker
 
 
 class CatalogTest(TestCase):

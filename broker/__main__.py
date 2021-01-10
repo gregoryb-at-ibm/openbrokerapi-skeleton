@@ -1,6 +1,6 @@
 import os
 
-from . import create_app
+from init import create_app
 
 
 def main():
@@ -9,7 +9,7 @@ def main():
 
     Use a proper webserver in production!
     """
-    port = int(os.getenv('PORT', '5000'))
+    port = int(os.getenv('PORT', '80'))
     app = create_app()
     app.run('0.0.0.0', port=port, debug=True)
 
