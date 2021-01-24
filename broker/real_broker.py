@@ -1,5 +1,9 @@
+import os
 from os import environ
 import logging
+from urllib.parse import quote_plus
+
+import pymongo
 
 # todo: for debug only. remove in prod.
 environ['DISABLE_VERSION_CHECK'] = 'true'
@@ -16,7 +20,7 @@ from openbrokerapi.service_broker import (
     ProvisionDetails,
     ProvisionedServiceSpec,
     Service,
-    UnbindSpec)
+    UnbindSpec, GetInstanceDetailsSpec)
 
 logger = logging.getLogger(__name__)
 
@@ -35,46 +39,6 @@ class Broker(ServiceBroker):
     def __init__(self):
         pass
 
-    kaka = {
-
-        'plans': [{'name': 'satellite-iaas-plan',
-                   'free': False,
-                   'description': 'Satellite Infrastructure Services plan',
-                   'id': 'd88b26d9-0497-4351-8691-3e3bec9110fb',
-                   'metadata': {'regional': True,
-                                'subscription': False,
-                                'paidOnly': False,
-                                'allowInternalUsers': False,
-                                'reservable': False,
-                                'subscriptionOnly': False,
-                                'displayName': 'Satellite Infrastructure Services plan',
-                                'bullets': ['Satellite Infrastructure Services plan'],
-                                'costs': [{'partNumber': 'part-satellite-iaas',
-                                           'unit': 'Virtual Processor Core-Hour',
-                                           'unitId': 'VIRTUAL_PROCESSOR_CORE_HOURS',
-                                           'resourceDisplayName': 'VIRTUAL_PROCESSOR_CORE_HOURS',
-                                           'rating_model': 'linear_tier',
-                                           'rating_scale': 1,
-                                           'free_units': 0,
-                                           'instance_free_units': 0,
-                                           'scale': 1,
-                                           'is_rated': True,
-                                           'model': 'standard_add',
-                                           'rmcGenTime': 1607014667355},
-                                          {'partNumber': 'part-satellite-iaas-blockfile.silver',
-                                           'unit': 'Gigabyte-Hour',
-                                           'unitId': 'GIGABYTE_HOURS',
-                                           'resourceDisplayName': 'GIGABYTE_HOURS',
-                                           'rating_model': 'linear_tier',
-                                           'rating_scale': 1,
-                                           'free_units': 0,
-                                           'instance_free_units': 0,
-                                           'scale': 1,
-                                           'is_rated': True,
-                                           'model': 'standard_add',
-                                           'rmcGenTime': 1607014675809}]},
-                   'pricingCatalogRev': '1-b0bb34480087ba8c8ae8e5ebc5b20511',
-                   'pricingCatalogId': 'a519026390e751bf3f0bc401840152c8'}]}
     CATALOG = {'metadata': {'type': 'public',
                             'longDescription': 'Satellite Infrastructure Service offering for IBM Cloud Satellite',
                             'serviceKeysSupported': False,
@@ -171,6 +135,16 @@ class Broker(ServiceBroker):
     def unbind(self, instance_id: str, binding_id: str, details: UnbindDetails, async_allowed: bool,
                **kwargs) -> UnbindSpec:
         pass
+
+    # /v2/get_instance/instance_id
+    def get_instance(self, instance_id: str, **kwargs) -> GetInstanceDetailsSpec:
+        # our pod ip at the time of wirint
+        host = os.getenv('MONGO', "172.17.15.233")
+        uri = "mongodb://%s:%s@%s" % (
+            quote_plus("database-user"), quote_plus("database-password"), host)
+        client = pymongo.MongoClient(uri, 27017)
+        db = client.test
+        return {'name': db.name}
 
 
 def create_broker_blueprint(credentials: api.BrokerCredentials):
